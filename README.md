@@ -1,13 +1,26 @@
 # PowerShell Agenda
 ## Description
-This is an agenda application implemented with PowerShell and WinForms.
+This application allows a user to write, update, save, and delete categorized task lists.
+
+Key features include:
+1. Adding new tabs by clicking the **+** tab
+2. Renaming tabs by double-clicking the tab
+3. Deleting a tab by clicking the tab's **X** button
+4. Checking all tasks with the <img src="/Images/CheckIcon.png" width="20" height="20"> button
+5. Unchecking all tasks with the <img src="/Images/UncheckIcon.png" width="20" height="20"> button
+6. Deleting checked tasks with the <img src="/Images/TrashIcon.png" width="20" height="20"> button
 ## Instructions
+**NOTE:** On initial execution, a file named *Save.json* will be created in the root directory.
 ### Recommended
-1. Create a shortcut for `powrshell.exe -WindowStyle Hidden -File "<RootDirectory>\Driver.ps1`
-2. Name the shortcut and double-click the icon to open the application
+Create a desktop shortcut and put this command as the file location:
+```
+powrshell.exe -WindowStyle Hidden -File "<RootDirectory>\Driver.ps1"
+```
 ### Other
-1. Open a PowerShell session and change to the root directory
-2. Enter `.\Driver.ps1`
+Open the root directory in a PowerShell session and run this command:
+```
+.\Driver.ps1
+```
 ## Known Issues
 1. If the number of TabPages exceeds the width of the TabControl, the TabControl shrinks and becomes obstructed.
 ## License
