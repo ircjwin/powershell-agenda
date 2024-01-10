@@ -333,9 +333,22 @@ class Agenda {
 		$NewListView.HeaderStyle = "None"
 		$NewListView.Columns.Add("", -1)
 		$NewListView.CheckBoxes = $True
+		$NewListView.AllowDrop = $True
 		$NewListView.Size = New-Object Size($this.ListViewWidth, $this.ListViewHeight)
 		$NewListView.Location = New-Object Point($this.ListViewX, $this.ListViewY)
 		$NewListView.Font = New-Object Font("Segoe UI", 12, [FontStyle]::Regular)
+
+		$DragEnterHandler = {
+			$s = $Args[0]
+			$e = $Args[1]
+			if ($e.Data.GetDataPresent([DataFormats]::Text)) {
+				foreach ($TaskDesc in $e.Data.GetData([DataFormats]::Text)) {
+					$s.Items.Add($TaskDesc)
+				}
+			}
+		}
+		$NewListView.add_DragEnter( $DragEnterHandler )
+
 		foreach ($Task in $NewTaskList) {
 			$NewListView.Items.Add( ($Task.GetDesc()) )
 		}
@@ -447,6 +460,26 @@ class Agenda {
 	<#
 		EVENT HANDLERS
 	#>
+	[Void] ListView_DragDrop([Object] $s, [EventArgs] $e) {
+		# Defunct method
+		if ($e.Data.GetDataPresent([DataFormats]::Text)) {
+			$e.Effect = DragDropEffects.Copy
+		} else {
+			$e.Effect = DragDropEffects.None
+		}
+	}
+
+	[Void] ListView_DragEnter() {
+		# Defunct method
+		$s = $Args[0]
+		$e = $Args[1]
+		if ($e.Data.GetDataPresent([DataFormats]::Text)) {
+			foreach ($TaskDesc in $e.Data.GetData([DataFormats]::Text)) {
+				$s.Items.Add($TaskDesc)
+			}
+		}
+	}
+
 	[Void] BlurredControl_Click() {
 		$this.MainTabControl.SelectedTab.Select()
 	}
@@ -696,4 +729,5 @@ class Agenda {
 }
 
 
+Set-PSDebug -Trace 2
 Open-Agenda
