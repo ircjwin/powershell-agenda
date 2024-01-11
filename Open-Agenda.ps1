@@ -338,16 +338,27 @@ class Agenda {
 		$NewListView.Location = New-Object Point($this.ListViewX, $this.ListViewY)
 		$NewListView.Font = New-Object Font("Segoe UI", 12, [FontStyle]::Regular)
 
-		$DragEnterHandler = {
+		$ItemDragHandler = {
 			$s = $Args[0]
 			$e = $Args[1]
-			if ($e.Data.GetDataPresent([DataFormats]::Text)) {
-				foreach ($TaskDesc in $e.Data.GetData([DataFormats]::Text)) {
-					$s.Items.Add($TaskDesc)
+			$s.DoDragDrop($e.Item, [DragDropEffects]::Copy)
+		}
+		$DragEnterHandler = {
+			$e = $Args[1]
+			$e.Effect = $e.AllowedEffect
+		}
+		$DragDropHandler = {
+			$s = $Args[0]
+			$e = $Args[1]
+			if ($e.Data.GetDataPresent([ListViewItem])) {
+				foreach ($TaskDesc in $e.Data.GetData([ListViewItem])) {
+					$s.Items.Add($TaskDesc.Text)
 				}
 			}
 		}
+		$NewListView.add_ItemDrag( $ItemDragHandler )
 		$NewListView.add_DragEnter( $DragEnterHandler )
+		$NewListView.add_DragDrop( $DragDropHandler )
 
 		foreach ($Task in $NewTaskList) {
 			$NewListView.Items.Add( ($Task.GetDesc()) )
@@ -729,5 +740,5 @@ class Agenda {
 }
 
 
-Set-PSDebug -Trace 2
+# Set-PSDebug -Trace 2
 Open-Agenda
