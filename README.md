@@ -9,8 +9,9 @@ Key features include:
 4. Checking all tasks with the <img src="/Images/CheckIcon.png" width="20" height="20"> button
 5. Unchecking all tasks with the <img src="/Images/UncheckIcon.png" width="20" height="20"> button
 6. Deleting checked tasks with the <img src="/Images/TrashIcon.png" width="20" height="20"> button
+7. Opening agenda on startup by checking the option in *Settings*
 ## Instructions
-**NOTE:** On initial execution, a file named *Save.json* will be created in the root directory.
+**NOTE:** On initial execution, *Save.json* and *Settings.json* will be created in the root directory.
 ### Recommended
 Create a desktop shortcut and put this command as the file location:
 ```
