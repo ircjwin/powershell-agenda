@@ -65,6 +65,26 @@ function Add-EventWrapper {
 }
 
 
+class AgendaSettings {
+	[Boolean] $StartupChecked
+	[Boolean] $DeployChecked
+	[Array] $EngineOptions
+	[List[String]] $EngineChoices
+
+	AgendaSettings() {
+		$this.StartupChecked = $False
+	}
+
+	[Boolean] GetStartupChecked() {
+		return $this.StartupChecked
+	}
+
+	[Void] SetStartupChecked([Boolean] $NewStatus) {
+		$this.StartupChecked = $NewStatus
+	}
+}
+
+
 class Task {
 	[String] $Desc
 	[String] $Webpage
@@ -167,6 +187,7 @@ class Agenda {
 	[String] $SelectedTabWhitespace
 	[String] $AddTabPageText
 	[String] $SaveDataPath
+	[String] $SettingsPath
 	[String] $TrashIconPath
 	[String] $CheckIconPath
 	[String] $UncheckIconPath
@@ -189,6 +210,7 @@ class Agenda {
 	[Boolean] $IsSaved
 	[Boolean] $IsNew
 	[List[Category]] $AgendaData
+	[AgendaSettings] $SettingsData
 
 	<#
 		CONTROLS
@@ -232,6 +254,7 @@ class Agenda {
 		$this.SelectedTabWhitespace = " " * 5
 		$this.AddTabPageText = "   +"
 		$this.SaveDataPath = "$($PSScriptRoot)\Save.json"
+		$this.SettingsPath = "$($PSScriptRoot)\Settings.json"
 		$this.TrashIconPath = "$($PSScriptRoot)\Images\TrashIcon.png"
 		$this.CheckIconPath = "$($PSScriptRoot)\Images\CheckIcon.png"
 		$this.UncheckIconPath = "$($PSScriptRoot)\Images\UncheckIcon.png"
@@ -253,6 +276,7 @@ class Agenda {
 		#>
 		$this.IsSaved = $True
 		$this.IsNew = $False
+		$this.SettingsData = $this.GetSettings()
 		$this.AgendaData = $this.GetData()
 
 		<#
@@ -305,8 +329,11 @@ class Agenda {
 		$NewCheckBox.Location = New-Object Point(80, 10)
 		$NewForm.Text = "Settings"
 		$NewLabel.Text = "On Startup"
+		$NewCheckBox.Checked = $this.SettingsData.GetStartupChecked()
 		$CheckboxHandler = {
 			$s = $Args[0]
+			$this.SettingsData.SetStartupChecked($s.Checked)
+			$this.SettingsData | ConvertTo-Json | Set-Content -Path $this.SettingsPath
 			if ($s.Checked) {
 				$WshShell = New-Object -comObject WScript.Shell
 				$ShortcutPath = "$([System.Environment]::GetFolderPath("Startup"))\PowerShellAgenda.lnk"
@@ -492,6 +519,17 @@ class Agenda {
 			}
 		}
 		return $NewData
+	}
+
+	[AgendaSettings] GetSettings() {
+		$FileExists = Test-Path -Path $this.SettingsPath
+		If ($FileExists -eq $False) {
+			$NewSettings = New-Object AgendaSettings
+			$NewSettings | ConvertTo-Json | Set-Content -Path $this.SettingsPath
+		}
+		$RawJSON = Get-Content -Path $this.SettingsPath -Raw | ConvertFrom-Json
+		$NewSettings = [AgendaSettings] $RawJSON
+		return $NewSettings
 	}
 
 	[Void] RelocateDeleteCategoryButton() {
