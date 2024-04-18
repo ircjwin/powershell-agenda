@@ -215,6 +215,9 @@ class Agenda {
 	<#
 		CONTROLS
 	#>
+	[TextBox] $DescTextBox
+	[TextBox] $WebpageTextBox
+	[Form] $TaskDetailsForm
 	[TabPage] $AddTabPage
 	[TextBox] $AddTaskTextBox
 	[TabControl] $MainTabControl
@@ -282,6 +285,7 @@ class Agenda {
 		<#
 			CONTROLS
 		#>
+		$this.TaskDetailsForm = $this.SetTaskDetailsForm()
 		$this.AddTabPage = New-Object TabPage
 		$this.AddTaskTextBox = $this.SetAddTaskTextBox()
 		$this.MainTabControl = $this.SetMainTabControl()
@@ -354,6 +358,50 @@ class Agenda {
 		return $NewForm
 	}
 
+	[Form] SetTaskDetailsForm() {
+		$NewForm = New-Object Form
+		$NewForm.FormBorderStyle = [FormBorderStyle]::None
+		$NewForm.TopLevel = $false
+		$NewLabel1 = New-Object Label
+		$NewLabel2 = New-Object Label
+		$this.DescTextBox = New-Object TextBox
+		$this.WebpageTextBox = New-Object TextBox
+		$NewEquipButton = New-Object Button
+		$NewSaveButton = New-Object Button
+		$NewCloseButton = New-Object Button
+		$NewForm.Size = New-Object Size(400, 200)
+		$NewLabel1.Width = 100
+		$NewLabel2.Width = 200
+		$this.DescTextBox.Width = 370
+		$this.WebpageTextBox.Width = 370
+		$NewLabel1.Height = 18
+		$NewLabel2.Height = 18
+		$NewForm.Location = New-Object Point(0, 0)
+		$NewLabel1.Location = New-Object Point(10, 13)
+		$NewLabel2.Location = New-Object Point(10, 63)
+		$this.DescTextBox.Location = New-Object Point(10, 33)
+		$this.WebpageTextBox.Location = New-Object Point(10, 83)
+		$NewEquipButton.Location = New-Object Point(10, 113)
+		$NewSaveButton.Location = New-Object Point(90, 113)
+		$NewCloseButton.Location = New-Object Point(170, 113)
+		$NewForm.Text = "Task Details"
+		$NewLabel1.Text = "Description:"
+		$NewLabel2.Text = "Webpage (if applicable):"
+		$NewEquipButton.Text = "Launch"
+		$NewSaveButton.Text = "Save"
+		$NewCloseButton.Text = "Close"
+		$LaunchHandler = {
+			$url = $this.WebpageTextBox.Text.Trim()
+			if ($null -ne $url) {
+				$url = "--new-window " + $url
+				Start-PRocess chrome.exe $url
+			}
+		}
+		$NewEquipButton.add_Click( (Add-EventWrapper -ScriptBlock $LaunchHandler) )
+		$NewForm.Controls.AddRange( @($NewLabel2, $this.WebpageTextBox, $NewEquipButton) )
+		return $NewForm
+	}
+
 	[TabControl] SetMainTabControl() {
 		$NewTabControl = New-Object TabControl
 		$NewTabControl.Location = New-Object Point($this.TabControlX, $this.TabControlY)
@@ -408,6 +456,20 @@ class Agenda {
 		foreach ($Task in $NewTaskList) {
 			$NewListView.Items.Add( ($Task.GetDesc()) )
 		}
+		$LVDoubleClick = {
+			$CurrentTab = $this.MainTabControl.SelectedTab
+			$CurrentListView = $CurrentTab.Controls[0]
+			$TaskIndex = $CurrentListView.SelectedIndices[0]
+			$CurrentTaskList = $this.AgendaData[$this.MainTabControl.SelectedIndex].GetTaskList()
+			$CurrentTask = $CurrentTaskList[$TaskIndex]
+			#$this.DescTextBox.Text = $CurrentTask.GetDesc()
+			$this.WebpageTextBox.Text = $CurrentTask.GetWebpage()
+			$Rect = $CurrentListView.GetItemRect($TaskIndex)
+			$this.TaskDetailsForm.Location = New-Object Point($Rect.X, ($Rect.Y + $Rect.Height) )
+			$this.TaskDetailsForm.Parent = $CurrentListView
+			$this.TaskDetailsForm.Show() | Out-Null
+		}
+		$NewListView.add_DoubleClick( (Add-EventWrapper -ScriptBlock $LVDoubleClick) )
 		return $NewListView
 	}
 
@@ -522,6 +584,7 @@ class Agenda {
 	[Void] Open() {
 		$this.MainForm.ShowDialog() | Out-Null
 		$this.SettingsForm.Dispose()
+		$this.TaskDetailsForm.Dispose()
 		$this.MainForm.Dispose()
 	}
 
@@ -777,4 +840,5 @@ class Agenda {
 }
 
 
+Set-PSDebug -Trace 2
 Open-Agenda
