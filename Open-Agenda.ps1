@@ -398,6 +398,7 @@ class Agenda {
 
 	[ListView] SetListView([List[Task]] $NewTaskList) {
 		$NewListView = New-Object ListView
+		$NewListView.LabelEdit = $true
 		$NewListView.View = "Details"
 		$NewListView.HeaderStyle = "None"
 		$NewListView.Columns.Add("", -1)
@@ -408,6 +409,7 @@ class Agenda {
 		foreach ($Task in $NewTaskList) {
 			$NewListView.Items.Add( ($Task.GetDesc()) )
 		}
+		$NewListView.add_AfterLabelEdit( (Add-EventWrapper -Method $this.ListView_AfterLabelEdit -SendArgs) )
 		return $NewListView
 	}
 
@@ -528,6 +530,21 @@ class Agenda {
 	<#
 		EVENT HANDLERS
 	#>
+	[Void] ListView_AfterLabelEdit([Object] $s, [EventArgs] $e) {	
+		$s.Items[$e.Item].Text = $e.Label.Trim()
+		$s.AutoResizeColumn(0, "ColumnContent")
+		$CurrentTab = $this.MainTabControl.SelectedTab
+		foreach ($Category in $this.AgendaData) {
+			if ( ($CurrentTab.Text.Trim()) -eq ($Category.GetName()) ) {
+				$Category.GetTaskList()[$e.Item].SetDesc($e.Label.Trim())
+				$this.IsSaved = $False
+				Break
+			}
+		}
+		$e.CancelEdit = $true
+		$e.Handled = $true
+	}
+
 	[Void] BlurredControl_Click() {
 		$this.MainTabControl.SelectedTab.Select()
 	}
