@@ -215,6 +215,8 @@ class Agenda {
 	<#
 		CONTROLS
 	#>
+	[TextBox] $WebpageTextBox
+	[Form] $TaskDetailsForm
 	[TabPage] $AddTabPage
 	[TextBox] $AddTaskTextBox
 	[TabControl] $MainTabControl
@@ -282,6 +284,7 @@ class Agenda {
 		<#
 			CONTROLS
 		#>
+		$this.TaskDetailsForm = $this.SetTaskDetailsForm()
 		$this.AddTabPage = New-Object TabPage
 		$this.AddTaskTextBox = $this.SetAddTaskTextBox()
 		$this.MainTabControl = $this.SetMainTabControl()
@@ -351,6 +354,30 @@ class Agenda {
 		$NewCheckBox.add_Click( (Add-EventWrapper -ScriptBlock $CheckboxHandler -SendArgs) )
 		$NewForm.Controls.Add( $NewLabel )
 		$NewForm.Controls.Add( $NewCheckBox )
+		return $NewForm
+	}
+
+	[Form] SetTaskDetailsForm() {
+		$NewForm = New-Object Form
+		$NewForm.StartPosition = [FormStartPosition]::CenterParent
+		$NewForm.Size = New-Object Size(200, 100)
+		$NewForm.Text = "Task Details"
+
+		$NewLabel = New-Object Label
+		$this.WebpageTextBox = New-Object TextBox
+		$NewCloseButton = New-Object Button
+		$NewForm.Size = New-Object Size(400, 200)
+		$NewLabel.Width = 200
+		$this.WebpageTextBox.Width = 370
+		$NewLabel.Height = 18
+		$NewForm.Location = New-Object Point(0, 0)
+		$NewLabel.Location = New-Object Point(10, 63)
+		$this.WebpageTextBox.Location = New-Object Point(10, 83)
+		$NewCloseButton.Location = New-Object Point(170, 113)
+		$NewForm.Text = "Task Details"
+		$NewLabel.Text = "Webpages:"
+		$NewCloseButton.Text = "Close"
+		$NewForm.Controls.AddRange( @($NewLabel, $this.WebpageTextBox) )
 		return $NewForm
 	}
 
