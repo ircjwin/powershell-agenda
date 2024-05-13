@@ -1,4 +1,6 @@
-# PowerShell Agenda
+# Delegate
+![Static Badge](https://img.shields.io/badge/powershell-5.1-steelblue?style=plastic&color=dodgerblue)
+
 ## Description
 This application allows a user to write, update, save, and delete categorized task lists.
 
